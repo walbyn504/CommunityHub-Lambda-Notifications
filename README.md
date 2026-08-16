@@ -1,7 +1,8 @@
 # CommunityHub Lambda Notifications
 
 Funcion AWS Lambda que crea una notificacion interna para el organizador cuando
-una actividad alcanza su capacidad maxima.
+una actividad alcanza su capacidad maxima y la elimina cuando una cancelacion
+vuelve a liberar un cupo.
 
 ## Contrato de entrada
 
@@ -15,6 +16,9 @@ una actividad alcanza su capacidad maxima.
   "occurredAt": "2026-08-16T18:00:00.000Z"
 }
 ```
+
+Para retirar la notificacion cuando vuelve a existir espacio, el backend envia
+el mismo contrato con `type: "EVENT_CAPACITY_AVAILABLE"`.
 
 ## Preparar paquete ZIP
 

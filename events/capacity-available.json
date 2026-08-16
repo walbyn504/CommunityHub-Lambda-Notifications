@@ -1,0 +1,8 @@
+{
+  "type": "EVENT_CAPACITY_AVAILABLE",
+  "eventId": "REEMPLAZAR_CON_ID_REAL_DEL_EVENTO",
+  "organizerId": "REEMPLAZAR_CON_ID_REAL_DEL_ORGANIZADOR",
+  "eventTitle": "Asamblea comunal",
+  "maxCapacity": 50,
+  "occurredAt": "2026-08-16T18:30:00.000Z"
+}

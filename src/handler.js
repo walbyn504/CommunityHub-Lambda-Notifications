@@ -2,6 +2,7 @@ const { ObjectId } = require('mongodb');
 const connectDB = require('./database');
 
 const CAPACITY_EVENT_TYPE = 'EVENT_CAPACITY_REACHED';
+const CAPACITY_AVAILABLE_EVENT_TYPE = 'EVENT_CAPACITY_AVAILABLE';
 
 exports.handler = async (event) => {
   const {
@@ -13,7 +14,7 @@ exports.handler = async (event) => {
     occurredAt,
   } = event || {};
 
-  if (type !== CAPACITY_EVENT_TYPE) {
+  if (![CAPACITY_EVENT_TYPE, CAPACITY_AVAILABLE_EVENT_TYPE].includes(type)) {
     throw new Error('Tipo de evento no soportado');
   }
 
@@ -21,7 +22,7 @@ exports.handler = async (event) => {
     throw new Error('Los identificadores recibidos no son validos');
   }
 
-  if (!eventTitle || !Number.isInteger(maxCapacity) || maxCapacity < 1) {
+  if (type === CAPACITY_EVENT_TYPE && (!eventTitle || !Number.isInteger(maxCapacity) || maxCapacity < 1)) {
     throw new Error('Los datos de la actividad no son validos');
   }
 
@@ -35,6 +36,17 @@ exports.handler = async (event) => {
     event: new ObjectId(eventId),
     type: CAPACITY_EVENT_TYPE,
   };
+
+  if (type === CAPACITY_AVAILABLE_EVENT_TYPE) {
+    const result = await notifications.deleteMany(filter);
+
+    return {
+      deleted: result.deletedCount,
+      message: result.deletedCount
+        ? 'Notificacion de cupo completo eliminada'
+        : 'No existia una notificacion de cupo completo',
+    };
+  }
 
   const result = await notifications.updateOne(
     filter,
