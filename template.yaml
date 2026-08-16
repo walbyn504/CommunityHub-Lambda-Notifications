@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  MongoDbUri:
+    Type: String
+    NoEcho: true
+  MongoDbName:
+    Type: String
+    Default: communityhub
+
+Resources:
+  CapacityNotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: communityhub-capacity-notification
+      Runtime: nodejs22.x
+      Handler: src/handler.handler
+      CodeUri: .
+      MemorySize: 256
+      Timeout: 15
+      Environment:
+        Variables:
+          MONGODB_URI: !Ref MongoDbUri
+          MONGODB_DB_NAME: !Ref MongoDbName
+
+Outputs:
+  CapacityNotificationFunctionArn:
+    Value: !GetAtt CapacityNotificationFunction.Arn

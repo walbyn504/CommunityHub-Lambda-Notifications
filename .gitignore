@@ -1,0 +1,6 @@
+node_modules/
+.aws-sam/
+*.zip
+.env
+env.local.json
+samconfig.toml
