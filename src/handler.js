@@ -26,27 +26,30 @@ exports.handler = async (event) => {
     throw new Error('Los datos de la actividad no son validos');
   }
 
+  const eventOccurredAt = new Date(occurredAt);
+  if (type === CAPACITY_EVENT_TYPE && (!occurredAt || Number.isNaN(eventOccurredAt.getTime()))) {
+    throw new Error('La fecha del evento no es valida');
+  }
+
+  if (type === CAPACITY_AVAILABLE_EVENT_TYPE) {
+    return {
+      ignored: true,
+      message: 'El historial de notificaciones se conserva',
+    };
+  }
+
   const db = await connectDB();
   const notifications = db.collection('notifications');
   const now = new Date();
 
-  // El filtro hace idempotente la funcion ante reintentos asincronos de AWS.
+  // Verificar si ya existe una notificación para el mismo evento y organizador.
+  // Si existe, no se crea una nueva notificación.
   const filter = {
     user: new ObjectId(organizerId),
     event: new ObjectId(eventId),
     type: CAPACITY_EVENT_TYPE,
+    occurredAt: eventOccurredAt,
   };
-
-  if (type === CAPACITY_AVAILABLE_EVENT_TYPE) {
-    const result = await notifications.deleteMany(filter);
-
-    return {
-      deleted: result.deletedCount,
-      message: result.deletedCount
-        ? 'Notificacion de cupo completo eliminada'
-        : 'No existia una notificacion de cupo completo',
-    };
-  }
 
   const result = await notifications.updateOne(
     filter,
@@ -55,7 +58,6 @@ exports.handler = async (event) => {
         ...filter,
         message: `La actividad "${eventTitle}" alcanzo su capacidad maxima de ${maxCapacity} participantes.`,
         read: false,
-        occurredAt: occurredAt ? new Date(occurredAt) : now,
         createdAt: now,
         updatedAt: now,
       },
