@@ -2,10 +2,10 @@
   "name": "communityhub-lambda-notifications",
   "version": "1.0.0",
   "private": true,
-  "description": "Lambda de CommunityHub para notificar al organizador cuando una actividad completa su cupo.",
+  "description": "Funciones Lambda de CommunityHub para notificaciones de capacidad y recordatorios de actividades.",
   "main": "src/handler.js",
   "scripts": {
-    "check": "node --check src/handler.js && node --check src/database.js"
+    "check": "node --check src/handler.js && node --check src/reminderHandler.js && node --check src/database.js"
   },
   "dependencies": {
     "mongodb": "^6.18.0"

@@ -8,6 +8,12 @@ Parameters:
   MongoDbName:
     Type: String
     Default: communityhub
+  EventTimezoneOffset:
+    Type: String
+    Default: '-06:00'
+  ReminderWindowHours:
+    Type: Number
+    Default: 24
 
 Resources:
   CapacityNotificationFunction:
@@ -24,6 +30,30 @@ Resources:
           MONGODB_URI: !Ref MongoDbUri
           MONGODB_DB_NAME: !Ref MongoDbName
 
+  UpcomingEventReminderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: communityhub-upcoming-event-reminder
+      Runtime: nodejs22.x
+      Handler: src/reminderHandler.handler
+      CodeUri: .
+      MemorySize: 256
+      Timeout: 30
+      Environment:
+        Variables:
+          MONGODB_URI: !Ref MongoDbUri
+          MONGODB_DB_NAME: !Ref MongoDbName
+          EVENT_TIMEZONE_OFFSET: !Ref EventTimezoneOffset
+          REMINDER_WINDOW_HOURS: !Ref ReminderWindowHours
+      Events:
+        HourlyReminder:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 hour)
+            Enabled: true
+
 Outputs:
   CapacityNotificationFunctionArn:
     Value: !GetAtt CapacityNotificationFunction.Arn
+  UpcomingEventReminderFunctionArn:
+    Value: !GetAtt UpcomingEventReminderFunction.Arn
